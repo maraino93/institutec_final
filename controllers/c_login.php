@@ -11,14 +11,21 @@ if (isset($_POST['submit'])) {
     $resul = $modelSql->login($user, $password);
 
     if ($resul != false) {
+        $dni= $resul['dni'];
         $name = $resul['name'];
+        $mail = $resul['mail'];
         $rol = $resul['fk_rol_id'];
         $state = $resul['state'];
         $user_id = $resul['id_user'];
+       
         $changed = $resul['password_changed'];
+        $_SESSION['dni'] = $dni;
         $_SESSION['name'] = $name;
         $_SESSION['fk_rol_id'] = $rol;
         $_SESSION['id_user'] = $user_id;
+        $_SESSION['mail']= $mail;
+        
+        
 
         if ($state == 1) {
             $_SESSION['state'] = $state;

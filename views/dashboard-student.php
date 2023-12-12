@@ -1,9 +1,12 @@
 <?php
+require_once '../model/query.php';
 require_once '../controllers/stop_session.php';
+require_once '../controllers/crud_dashboard_student.php';
 session_start();
 checkSession();
 
 ?>
+
 <!DOCTYPE html>
 <!--
 This is a starter template page. Use this page to start your new project from
@@ -181,7 +184,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
           <img src="../dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
         </div>
         <div class="info">
-          <a href="#" class="d-block">Alumno</a>
+          <a href="#" class="d-block">Alumno: <?php echo $get_students['name']; ?></a>
         </div>
       </div>
 
@@ -206,7 +209,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
             <a href="#" class="nav-link active">
               
               <p>
-                Materias
+                Datos del Alumno
                 <i class="right fas fa-angle-left"></i>
               </p>
             </a>
@@ -214,26 +217,29 @@ scratch. This page gets rid of all links and provides the needed markup only.
               <li class="nav-item">
                 <a href="#" class="nav-link ">
                   
-                  <p>Matematica I</p>
+                  <p>Nombre: <?php echo $get_students['name']; ?></p>
+                  <br>
+                  <p>Apellido: <?php echo $get_students['last_name']; ?></p>
+                  <br>
+                  <p>Direccion: <?php echo $get_students['direction']; ?></p>
+                  <br>
+                  <p>Altura: <?php echo $get_students['height']; ?></p>
+                  <br>
+                  <p>Email: <?php echo $get_students['email']; ?></p>
+                  <br>
+                  <p>Telefono: <?php echo $get_students['phone']; ?></p>
+                  
                 </a>
               </li>
               <li class="nav-item">
                 <a href="#" class="nav-link">
                   
-                  <p>Practicas Profesionalizantes</p>
+                  <p>Fecha de Creacion <?php echo $get_students['fech_creation']; ?></p>
                 </a>
               </li>
             </ul>
           </li>
-          <li class="nav-item">
-            <a href="#" class="nav-link">
-              
-              <p>
-                  Examenes
-                
-              </p>
-            </a>
-          </li>
+        
           
           <li class="nav-item d-none d-sm-inline-block text-center">
               <a href="../controllers/destroy_Session.php" class="nav-link">Cerrar Session</a>
@@ -253,14 +259,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
         <div class="row mb-2">
           <div class="col-sm-6">
             <h1 class="m-0"></h1>
-          </div><!-- /.col -->
-          <div class="col-sm-6">
-            <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><a href="#">Inicio</a></li>
-              <li class="breadcrumb-item active">Materias</li>
-            </ol>
-          </div><!-- /.col -->
-        </div><!-- /.row -->
+         
       </div><!-- /.container-fluid -->
     </div>
     <!-- /.content-header -->
@@ -269,36 +268,44 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <div class="content">
     <div class="row py-3">
         <div class="col">
-           <table class="table table-border table-hover" cellspacing="0">
-               <thead style="background-color: #4c5a7d;">
-                <tr  >
-                    
-                    <th>Materia</th>
-                    <th>Profesor</th>
-                    <th>Carrera</th>
-                    <th>Año</th>
-                    <th>Ver</th>
-                    
-                </tr>
-                
-               </thead>
-               <tr>
-                  <th>Matematica I</th>
-                  <th>Javier Pereyra</th>
-                  <th>Analisis de Sistema</th>
-                  <th>1</th>
-                  <th><a href="#" class="btn btn-primary ">Detalles</a></th>
-               
-                </tr>
-                <tr>
-                  <th>Practicas Profesionalizantes I</th>
-                  <th>Lucas Carnero</th>
-                  <th>Analisis de Sistema</th>
-                  <th>1</th>
-                  <th><a href="#" class="btn btn-primary ">Detalles</a></th>
-               
-                </tr>
-           </table>
+        <table class="table table-border small" id="myTable">
+                            <thead>
+                                <tr class="bg-primary">
+                                    <th class="text-center long-letter">Nombre</th>
+                                    <th class="text-center long-letter">Apellido</th>
+                                    <th class="text-center long-letter">Nombre Carrera</th>
+                                    <th class="text-center long-letter">Nombre materia</th>
+                                    <th class="text-center long-letter">Parcial 1</th>
+                                    <th class="text-center long-letter">Parcial 2</th>
+                                    <th class="text-center long-letter">Recuperatorio 1</th>
+                                    <th class="text-center long-letter">Recuperatorio 2</th>
+                                    <th class="text-center long-letter">Integrador</th>
+                                    <th class="text-center">Anotarse</th>
+                                  
+                                </tr>
+                            </thead>
+                            <tbody>
+                                
+                            <?php
+                                foreach ($get_union_notes as $row) { ?>
+                                    <tr>
+                                        <td class="text-center align-middle"><?php echo $row['name'] ?></td>
+                                        <td class="text-center align-middle"><?php echo $row['last_name'] ?></td>
+                                        <td class="text-center  align-middle"><?php echo $row['career_name'] ?></td>
+                                        <td class="text-center  align-middle"><?php echo $row['subject_name'] ?></td>
+                                        <td class="text-center  align-middle"><?php echo $row['partial_1'] ?></td>
+                                        <td class="text-center  align-middle"><?php echo $row['partial_2'] ?></td>
+                                        <td class="text-center  align-middle"><?php echo $row['recovery_1'] ?></td>
+                                        <td class="text-center  align-middle"><?php echo $row['recovery_2'] ?></td>
+                                        <td class="text-center  align-middle"><?php echo $row['integrator'] ?></td>
+                                        <td><a href="../views/singup_subject.php?id=<?php echo $row['correlative'] ?>" class="btn btn-info float-right"><i class="fas fa-info-circle"></i></a></td>
+                                        
+
+                                    </tr>
+                                <?php } ?>   
+                               
+                            </tbody>
+                        </table>
         </div>
     </div>
 

@@ -891,6 +891,29 @@ function insertStudent($name, $last_name, $direction, $height, $uk_dni, $email, 
     }
 }
 
+function create_account_student($value1,$value2,$value3,$value4){
+    $query = "INSERT INTO internal_users (name, dni, password,mail, fk_rol_id, state)
+          VALUES (:name, :dni, :password,:mail, 3, 1)";
+
+
+$statement = $this->pdo->prepare($query);
+$statement->bindParam(':name', $value1, PDO::PARAM_STR);
+$statement->bindParam(':dni', $value2, PDO::PARAM_STR);
+$statement->bindParam(':password', $value3, PDO::PARAM_STR);
+$statement->bindParam(':mail', $value4, PDO::PARAM_STR);
+
+
+try{
+    if($statement->execute()){
+        return true;
+    }
+}catch (PDOException $e) {
+    echo "Error en la inserción: " . $e->getMessage();
+    return false;
+}
+
+}
+
 public function search_students($search) {
     $query = "SELECT 
     estudents.id_estudents AS 'id_estudents',
@@ -1210,6 +1233,114 @@ public function delete_Correlative($value) {
     return $statement->execute();
 }
 
+public function getSingleEstudents($table,$value)
+{
+    $query = "SELECT * FROM $table WHERE uk_dni = :uk_dni AND state = 1";
+    $statement = $this->pdo->prepare($query);
+    $intDni = intval($value);//camvia de cha a int
+    $statement->bindParam(':uk_dni', $intDni, PDO::PARAM_INT);
+    $statement->execute();
+    
+    return $statement->fetch(PDO::FETCH_ASSOC);
+}
+public function getNotesEstudents($table, $value) 
+{
+     $query = "SELECT DISTINCT
+     estudents.id_estudents AS 'id_estudents',
+     estudents.uk_dni AS 'dni',
+     estudents.name AS 'name',
+     estudents.last_name AS 'last_name',
+     estudents.state AS 'state',
+     notes.id_note_partial AS 'id_note_partial',
+     notes.partial_1 AS 'partial_1',
+     notes.partial_2 AS 'partial_2',
+     notes.recovery_1 AS 'recovery_1',
+     notes.recovery_2 AS 'recovery_2',
+     notes.integrator AS 'integrator',
+     careers.career_name AS 'career_name',
+     subjects.subject_name AS 'subject_name',
+     subjects.id_subjects AS 'id_subjects',
+     subjects.correlative AS 'correlative'
+ FROM $table
+ JOIN estudents ON notes.fk_estudents_id = estudents.id_estudents
+ JOIN careers ON estudents.fk_career_id = careers.id_career
+ JOIN subjects ON subjects.fk_career_id = careers.id_career AND notes.fk_subject_id = subjects.id_subjects
+ JOIN students_subjects AS ss1 ON ss1.fk_subject_id = subjects.id_subjects
+ JOIN students_subjects AS ss2 ON ss2.fk_student_id = estudents.id_estudents
+ WHERE ss1.fk_student_id = estudents.id_estudents AND ss1.fk_subject_id = subjects.id_subjects and uk_dni = :uk_dni"; 
+
+    $statement = $this->pdo->prepare($query);
+    $intDni = intval($value);//camvia de cha a int
+    $statement->bindParam(':uk_dni', $intDni, PDO::PARAM_INT);
+    $statement->execute();
+    
+   
+
+    $union_notes = $statement->fetchAll();
+    return $union_notes;
+
+}
+public function get_Correlatives($table,$correlative){
+    
+      $query="SELECT 
+      subjects.id_subjects,
+      subjects.subject_name, 
+      subjects.details, 
+      subjects.state,
+      subjects.correlative
+      FROM $table
+      WHERE subjects.correlative = $correlative and subjects.details = '2do año'";
+
+    $statement = $this->pdo->prepare($query);
+    $statement->execute();
+    return $statement->fetch(PDO::FETCH_ASSOC);
+   
+
+
 }
 
-?>
+public function get_id_correlatives($table, $correlative_2, $id_student){
+    
+    $query="SELECT DISTINCT
+    subjects.subject_name AS 'subject_name',
+    subjects.details AS 'details',
+    subjects.id_subjects AS 'id_subject',
+    subjects.correlative AS 'correlative',
+    estudents.id_estudents AS 'id_estudents',
+    notes.id_note_partial AS 'id_note_partial',
+    notes.state AS 'state'
+FROM
+    $table
+JOIN estudents ON notes.fk_estudents_id = estudents.id_estudents
+JOIN subjects ON notes.fk_subject_id = subjects.id_subjects
+WHERE notes.state= 1 AND subjects.correlative=$correlative_2 AND estudents.id_estudents= $id_student";
+        
+    $statement = $this->pdo->prepare($query);
+    $statement->bindParam(':correlative_2', $correlative_2, PDO::PARAM_INT);// Corregido aquí
+    $statement->bindParam(':id_student', $id_student, PDO::PARAM_INT);
+    $statement->execute();
+    
+    return $statement->fetch(PDO::FETCH_ASSOC);
+}
+
+public function insert_studedent_correlative($fk_student,$fk_subject){
+
+    $query = "INSERT INTO students_subjects (fk_student_id,fk_subject_id,school_year)
+              VALUES (:fk_student_id,:fk_subject_id,2025)";
+
+               $statement = $this->pdo->prepare($query);
+
+               $statement->bindParam(':fk_student_id', $fk_student, PDO::PARAM_INT);
+               $statement->bindParam(':fk_subject_id', $fk_subject, PDO::PARAM_INT);
+
+
+               try {
+                if ($statement->execute()) {
+                    return true; // Devuelve verdadero si la inserción fue exitosa
+                }
+            } catch (PDOException $e) {
+                echo "Error en la inserción: " . $e->getMessage();
+                return false;
+            }
+}
+}
